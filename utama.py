@@ -175,4 +175,4 @@ except Exception as e:
 st.write("")
 st.write("")
 st.divider()
-st.caption("© 2026 Minecraft Biome Wiki & Explorer - Dibuat dengan Streamlit")
+st.caption("© 2026 Minecraft Biome Wiki & Explorer - Dibuat dengan Streamlit. Di susun oleh Fatihan Apta Subiyantoro XB MAN 1 Yogyakarta")
