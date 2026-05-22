@@ -99,63 +99,59 @@ try:
             st.header(f"🪐 Dimensi: {str(kat).upper()}")
             data_per_kat = df[df["kategori"] == kat]
 
-            # Membuat grid 2 kolom (menyamping) agar deskripsi teks biome punya ruang yang luas
+            # Membuat grid 2 kolom (menyamping) agar tampilan kiri-kanan tetap seimbang
             cols = st.columns(2)
 
             for index, row in data_per_kat.reset_index().iterrows():
                 # Menentukan kolom utama tempat biome akan muncul (kiri atau kanan)
                 with cols[index % 2]:
 
-                    # Membuat sub-kolom internal di dalam kotak produk: Kiri untuk gambar, Kanan untuk penjelasan
-                    sub_col_foto, sub_col_detail = st.columns([5, 6])
+                    # --- 1. BAGIAN ATAS: FOTO / PREVIEW BIOME ---
+                    list_foto = [
+                        f.strip()
+                        for f in str(row["foto"]).split(",")
+                        if f.strip()
+                    ]
 
-                    # --- SUB-KOLOM KIRI: FOTO / PREVIEW BIOME ---
-                    with sub_col_foto:
-                        list_foto = [
-                            f.strip()
-                            for f in str(row["foto"]).split(",")
-                            if f.strip()
-                        ]
+                    if len(list_foto) > 1:
+                        # Jika foto biome lebih dari 1, otomatis pakai sistem Tab
+                        tabs = st.tabs(
+                            [f"View {i+1}" for i in range(len(list_foto))]
+                        )
+                        for i, file_foto in enumerate(list_foto):
+                            with tabs[i]:
+                                if os.path.exists(file_foto):
+                                    st.image(
+                                        file_foto, use_container_width=True
+                                    )
+                                else:
+                                    st.caption(
+                                        f"⚠️ {file_foto} tidak ditemukan"
+                                    )
 
-                        if len(list_foto) > 1:
-                            # Jika foto biome lebih dari 1, otomatis pakai sistem Tab
-                            tabs = st.tabs(
-                                [f"View {i+1}" for i in range(len(list_foto))]
-                            )
-                            for i, file_foto in enumerate(list_foto):
-                                with tabs[i]:
-                                    if os.path.exists(file_foto):
-                                        st.image(
-                                            file_foto, use_container_width=True
-                                        )
-                                    else:
-                                        st.caption(
-                                            f"⚠️ {file_foto} tidak ditemukan"
-                                        )
-
-                        elif len(list_foto) == 1:
-                            # Jika hanya ada 1 foto, tampilkan langsung tanpa tab
-                            file_foto = list_foto[0]
-                            if os.path.exists(file_foto):
-                                st.image(file_foto, use_container_width=True)
-                            else:
-                                st.warning(
-                                    f"Foto {file_foto} tidak ditemukan"
-                                )
+                    elif len(list_foto) == 1:
+                        # Jika hanya ada 1 foto, tampilkan langsung tanpa tab
+                        file_foto = list_foto[0]
+                        if os.path.exists(file_foto):
+                            st.image(file_foto, use_container_width=True)
                         else:
-                            st.error("Gambar biome tidak tersedia")
+                            st.warning(f"Foto {file_foto} tidak ditemukan")
+                    else:
+                        st.error("Gambar biome tidak tersedia")
 
-                    # --- SUB-KOLOM KANAN: PENJELASAN BIOME ---
-                    with sub_col_detail:
-                        st.subheader(row["nama"])
+                    # Memberikan sedikit jarak antara foto dan teks judul
+                    st.write("")
 
-                        # Mengambil data deskripsi penjelasan biome dari CSV
-                        if "deskripsi" in row and pd.notna(row["deskripsi"]):
-                            deskripsi_teks = row["deskripsi"]
-                        else:
-                            deskripsi_teks = "*Belum ada penjelasan deskripsi untuk biome ini. Silakan update di file CSV Anda.*"
+                    # --- 2. BAGIAN BAWAH: PENJELASAN BIOME ---
+                    st.subheader(row["nama"])
 
-                        st.write(deskripsi_teks)
+                    # Mengambil data deskripsi penjelasan biome dari CSV
+                    if "deskripsi" in row and pd.notna(row["deskripsi"]):
+                        deskripsi_teks = row["deskripsi"]
+                    else:
+                        deskripsi_teks = "*Belum ada penjelasan deskripsi untuk biome ini. Silakan update di file CSV Anda.*"
+
+                    st.write(deskripsi_teks)
 
                     # Memberi garis penutup tipis antar biome di dalam grid
                     st.write("---")
